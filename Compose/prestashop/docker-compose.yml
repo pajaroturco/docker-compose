@@ -1,0 +1,38 @@
+version: '3'
+
+networks:
+  my-network:
+    driver: bridge
+
+services:
+  db:
+    container_name: ps-mysql
+    image: mysql:5.7
+    volumes:
+      - ./db_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=ps
+      - MYSQL_USER=ps
+      - MYSQL_PASSWORD=secret
+    ports:
+      - "3306:3306"
+    networks:
+      - my-network
+
+  ps:
+    container_name: ps-web
+    image: prestashop/prestashop
+    depends_on:
+      - db
+    ports:
+      - "80:80"
+    volumes:
+      - ./prestashop:/var/www/html
+    environment:
+      - DB_SERVER=db
+      - DB_NAME=ps
+      - DB_USER=ps
+      - DB_PASSWD=secret
+    networks:
+      - my-network
